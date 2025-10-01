@@ -9,7 +9,14 @@ export default function TaskCard({ task, onToggleStatus, onDelete }) {
       <CardContent>
         <Stack direction="row" justifyContent="space-between" alignItems="center" className="mb-3">
           <Typography variant="h6" className={isCompleted ? 'line-through text-gray-500' : ''}>{task.title}</Typography>
-          <Chip label={task.category} color={task.category === 'Urgent' ? 'error' : task.category === 'Work' ? 'primary' : 'success'} size="small" />
+          <Stack direction="row" spacing={1}>
+            <Chip 
+              label={isCompleted ? 'Completed' : 'Pending'} 
+              color={isCompleted ? 'success' : 'warning'} 
+              size="small" 
+            />
+            <Chip label={task.category} color={task.category === 'Urgent' ? 'error' : task.category === 'Work' ? 'primary' : 'success'} size="small" />
+          </Stack>
         </Stack>
         <Typography variant="body2" className="text-gray-700" sx={{ mb: 2 }}>{task.description}</Typography>
         <Stack spacing={0.5} className="text-gray-500">
