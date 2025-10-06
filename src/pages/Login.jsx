@@ -76,25 +76,25 @@ export default function Login() {
   if (isAuthenticated) return <Navigate to="/" replace />;
 
   return (
-    <Box component="main" className="relative min-h-screen bg-animated-gradient">
+    <Box component="main" className="relative min-h-screen bg-animated-gradient dark:bg-gray-900">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-grid opacity-30" />
-        <div className="absolute -top-24 -left-20 h-72 w-72 rounded-full bg-indigo-300/40 blur-3xl animate-float" />
-        <div className="absolute top-1/3 -right-24 h-64 w-64 rounded-full bg-sky-300/40 blur-3xl animate-float animate-delay-2" />
-        <div className="absolute -bottom-24 left-1/4 h-56 w-56 rounded-full bg-violet-300/40 blur-3xl animate-float animate-delay-4" />
+        <div className="absolute inset-0 bg-grid opacity-30 dark:opacity-10" />
+        <div className="absolute -top-24 -left-20 h-72 w-72 rounded-full bg-indigo-300/40 dark:bg-indigo-900/30 blur-3xl animate-float" />
+        <div className="absolute top-1/3 -right-24 h-64 w-64 rounded-full bg-sky-300/40 dark:bg-sky-900/30 blur-3xl animate-float animate-delay-2" />
+        <div className="absolute -bottom-24 left-1/4 h-56 w-56 rounded-full bg-violet-300/40 dark:bg-violet-900/30 blur-3xl animate-float animate-delay-4" />
       </div>
 
       <Box className="relative mx-auto flex min-h-screen max-w-7xl items-center justify-center px-4">
         <Paper
           elevation={8}
-          sx={{ bgcolor: 'common.white' }}
-          className="relative w-full max-w-md rounded-lg border border-gray-100 p-8 shadow-[0_10px_40px_rgba(2,6,23,0.08)]"
+          sx={{ bgcolor: (theme) => theme.palette.background.paper }}
+          className="relative w-full max-w-md rounded-lg border border-gray-100 dark:border-gray-700 p-8 shadow-[0_10px_40px_rgba(2,6,23,0.08)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.4)]"
         >
-          <div className="absolute inset-0 rounded-lg ring-1 ring-gray-100" />
+          <div className="absolute inset-0 rounded-lg ring-1 ring-gray-100 dark:ring-gray-700" />
           <Box className="relative flex flex-col items-center text-center animate-fade-in">
             <Avatar className="mb-2 bg-blue-600"><LockOutlinedIcon fontSize="small" /></Avatar>
             <Typography component="h1" variant="h6" className="mb-0.5">Welcome back</Typography>
-            <Typography variant="body2" className="text-gray-600 text-sm">Sign in to manage your tasks</Typography>
+            <Typography variant="body2" className="text-gray-600 dark:text-gray-300 text-sm">Sign in to manage your tasks</Typography>
 
             {formError ? (
               <Alert severity="error" className="mt-4 w-full">{formError}</Alert>
@@ -155,7 +155,7 @@ export default function Login() {
 
               <Grid container justifyContent="center">
                 <Grid item>
-                  <Link to="/signup" className="text-blue-600 hover:underline">{"Don't have an account? Sign Up"}</Link>
+                  <Link to="/signup" className="text-blue-600 dark:text-blue-400 hover:underline">{"Don't have an account? Sign Up"}</Link>
                 </Grid>
               </Grid>
             </Box>

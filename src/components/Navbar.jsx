@@ -16,12 +16,16 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useThemeMode } from '../context/ThemeContext.jsx';
+import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
+import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
 
 export default function Navbar() {
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const { theme, toggleTheme } = useThemeMode();
 
   const handleLogout = () => {
     logout();
@@ -38,12 +42,14 @@ export default function Navbar() {
       elevation={0}
       color="transparent"
       sx={{
-        backgroundImage: 'linear-gradient(90deg, rgba(2,132,199,0.95) 0%, rgba(34,211,238,0.95) 100%)',
+        backgroundImage: theme === 'dark'
+          ? 'linear-gradient(90deg, rgba(15,23,42,0.9) 0%, rgba(30,41,59,0.9) 100%)'
+          : 'linear-gradient(90deg, rgba(2,132,199,0.95) 0%, rgba(34,211,238,0.95) 100%)',
         bgcolor: 'transparent',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(255,255,255,0.18)',
-        boxShadow: '0 10px 30px rgba(2,6,23,0.15)'
+        borderBottom: theme === 'dark' ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(255,255,255,0.18)',
+        boxShadow: theme === 'dark' ? '0 10px 30px rgba(0,0,0,0.4)' : '0 10px 30px rgba(2,6,23,0.15)'
       }}
     >
       <Toolbar className="mx-auto flex w-full max-w-7xl items-center justify-between px-3">
@@ -52,13 +58,16 @@ export default function Navbar() {
             variant="h6"
             component={NavLink}
             to="/"
-            className="no-underline bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80"
+            className="no-underline bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80 dark:from-yellow-200 dark:to-yellow-100"
           >
             Task Manager
           </Typography>
         </Box>
 
         <Box className="hidden items-center gap-2 md:flex">
+          <IconButton onClick={toggleTheme} sx={{ color: 'common.white' }} aria-label="Toggle theme">
+            {theme === 'dark' ? <LightModeOutlinedIcon /> : <DarkModeOutlinedIcon />}
+          </IconButton>
           {isAuthenticated ? (
             <>
               <NavLink to="/" end>
@@ -150,13 +159,18 @@ export default function Navbar() {
         anchor="right"
         open={isMobileOpen}
         onClose={() => setIsMobileOpen(false)}
-        PaperProps={{ className: 'w-64 text-white', sx: { backgroundImage: 'linear-gradient(180deg, rgba(2,132,199,1) 0%, rgba(34,211,238,1) 100%)' } }}
+        PaperProps={{ className: 'w-64 text-white', sx: { backgroundImage: theme === 'dark' ? 'linear-gradient(180deg, rgba(15,23,42,1) 0%, rgba(30,41,59,1) 100%)' : 'linear-gradient(180deg, rgba(2,132,199,1) 0%, rgba(34,211,238,1) 100%)' } }}
       >
         <Box className="flex items-center justify-between px-4 py-3">
           <Typography variant="subtitle1">Menu</Typography>
-          <IconButton onClick={() => setIsMobileOpen(false)} color="inherit" aria-label="Close menu">
-            <CloseIcon className="text-white" />
-          </IconButton>
+          <Box className="flex items-center gap-1">
+            <IconButton onClick={toggleTheme} color="inherit" aria-label="Toggle theme">
+              {theme === 'dark' ? <LightModeOutlinedIcon /> : <DarkModeOutlinedIcon />}
+            </IconButton>
+            <IconButton onClick={() => setIsMobileOpen(false)} color="inherit" aria-label="Close menu">
+              <CloseIcon className="text-white" />
+            </IconButton>
+          </Box>
         </Box>
         <Divider className="border-white/20" />
         <List>

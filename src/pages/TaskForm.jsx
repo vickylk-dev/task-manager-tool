@@ -15,6 +15,9 @@ export default function TaskForm() {
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('pending');
   const [category, setCategory] = useState('Work');
+  const [attachment, setAttachment] = useState(null);
+  const [attachmentName, setAttachmentName] = useState('');
+  const [attachmentError, setAttachmentError] = useState('');
   
   const [errors, setErrors] = useState({
     title: '',
@@ -31,6 +34,10 @@ export default function TaskForm() {
       setDescription(editingTask.description);
       setStatus(editingTask.status);
       setCategory(editingTask.category);
+      if (editingTask.attachment) {
+        setAttachment(editingTask.attachment);
+        setAttachmentName(editingTask.attachment?.name || '');
+      }
     }
   }, [editingTask]);
 
@@ -70,6 +77,34 @@ export default function TaskForm() {
     }
   };
 
+  const readFileAsDataUrl = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleAttachmentChange = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    setAttachmentError('');
+    if (!file) return;
+    // Limit ~5MB to avoid overly large localStorage entries
+    const maxBytes = 5 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      setAttachmentError('File is too large. Max size is 5MB.');
+      return;
+    }
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      setAttachment({ name: file.name, type: file.type || 'application/octet-stream', dataUrl });
+      setAttachmentName(file.name);
+    } catch {
+      setAttachmentError('Failed to read file');
+    }
+  };
+
   const handleBlur = (field) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
     
@@ -105,6 +140,7 @@ export default function TaskForm() {
       description: description.trim(),
       status,
       category,
+      attachment: attachment ? { ...attachment } : null,
     };
 
     if (editingTask) {
@@ -135,16 +171,18 @@ export default function TaskForm() {
       <Paper
         elevation={0}
         sx={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, #0f172a 0%, #1f2937 100%)'
+            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           borderRadius: 3,
           overflow: 'hidden',
         }}
       >
-        <Box sx={{ background: 'white', m: 0.3, borderRadius: 2.7, p: 4 }}>
+        <Box sx={{ background: (theme) => theme.palette.background.paper, m: 0.3, borderRadius: 2.7, p: 4 }}>
           <form onSubmit={handleSubmit}>
             <Stack spacing={3}>
               <Box>
-                <Typography variant="overline" className="text-gray-500 font-semibold text-xs">Task Details</Typography>
+                <Typography variant="overline" className="text-gray-500 dark:text-gray-400 font-semibold text-xs">Task Details</Typography>
                 <Divider sx={{ mt: 1, mb: 3 }} />
                 <TextField
                   fullWidth
@@ -160,9 +198,11 @@ export default function TaskForm() {
                   size="small"
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      '&:hover fieldset': { borderColor: errors.title && touched.title ? '#d32f2f' : '#667eea' },
+                      '&:hover fieldset': {
+                        borderColor: (theme) => (errors.title && touched.title) ? theme.palette.error.main : (theme.palette.mode === 'dark' ? '#8b5cf6' : '#667eea')
+                      },
                       '&.Mui-focused fieldset': { 
-                        borderColor: errors.title && touched.title ? '#d32f2f' : '#667eea', 
+                        borderColor: (theme) => (errors.title && touched.title) ? theme.palette.error.main : (theme.palette.mode === 'dark' ? '#8b5cf6' : '#667eea'), 
                         borderWidth: 2 
                       },
                     },
@@ -189,17 +229,19 @@ export default function TaskForm() {
                 size="small"
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': { borderColor: errors.description && touched.description ? '#d32f2f' : '#667eea' },
-                    '&.Mui-focused fieldset': { 
-                      borderColor: errors.description && touched.description ? '#d32f2f' : '#667eea', 
-                      borderWidth: 2 
+                    '&:hover fieldset': {
+                      borderColor: (theme) => (errors.description && touched.description) ? theme.palette.error.main : (theme.palette.mode === 'dark' ? '#8b5cf6' : '#667eea')
                     },
+                    '&.Mui-focused fieldset': {
+                      borderColor: (theme) => (errors.description && touched.description) ? theme.palette.error.main : (theme.palette.mode === 'dark' ? '#8b5cf6' : '#667eea'),
+                      borderWidth: 2
+                    }
                   },
                 }}
               />
 
               <Box>
-                <Typography variant="overline" className="text-gray-500 font-semibold text-xs">Task Configuration</Typography>
+                <Typography variant="overline" className="text-gray-500 dark:text-gray-400 font-semibold text-xs">Task Configuration</Typography>
                 <Divider sx={{ mt: 1, mb: 3 }} />
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                   <TextField
@@ -211,8 +253,8 @@ export default function TaskForm() {
                     size="small"
                     sx={{
                       '& .MuiOutlinedInput-root': {
-                        '&:hover fieldset': { borderColor: '#667eea' },
-                        '&.Mui-focused fieldset': { borderColor: '#667eea', borderWidth: 2 },
+                        '&:hover fieldset': { borderColor: (theme) => (theme.palette.mode === 'dark' ? '#8b5cf6' : '#667eea') },
+                        '&.Mui-focused fieldset': { borderColor: (theme) => (theme.palette.mode === 'dark' ? '#8b5cf6' : '#667eea'), borderWidth: 2 },
                       },
                     }}
                   >
@@ -228,8 +270,8 @@ export default function TaskForm() {
                     size="small"
                     sx={{
                       '& .MuiOutlinedInput-root': {
-                        '&:hover fieldset': { borderColor: '#667eea' },
-                        '&.Mui-focused fieldset': { borderColor: '#667eea', borderWidth: 2 },
+                        '&:hover fieldset': { borderColor: (theme) => (theme.palette.mode === 'dark' ? '#8b5cf6' : '#667eea') },
+                        '&.Mui-focused fieldset': { borderColor: (theme) => (theme.palette.mode === 'dark' ? '#8b5cf6' : '#667eea'), borderWidth: 2 },
                       },
                     }}
                   >
@@ -240,24 +282,40 @@ export default function TaskForm() {
                 </Stack>
               </Box>
 
+              <Box>
+                <Typography variant="overline" className="text-gray-500 dark:text-gray-400 font-semibold text-xs">Attachment (Optional)</Typography>
+                <Divider sx={{ mt: 1, mb: 2 }} />
+                <input type="file" onChange={handleAttachmentChange} />
+                {attachmentName && (
+                  <Typography variant="caption" className="block mt-1">Selected: {attachmentName}</Typography>
+                )}
+                {attachmentError && (
+                  <Typography variant="caption" color="error" className="block mt-1">{attachmentError}</Typography>
+                )}
+              </Box>
+
               <Stack direction="row" spacing={2} className="pt-2">
                 <Button
                   type="submit"
                   variant="contained"
                   size="small"
-                  disabled={!title.trim() || (touched.title && Boolean(errors.title)) || (touched.description && Boolean(errors.description))}
+                  disabled={!title.trim() || (touched.title && Boolean(errors.title)) || (touched.description && Boolean(errors.description)) || Boolean(attachmentError)}
                   startIcon={<CheckCircleOutlineIcon fontSize="small" />}
                   sx={{
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    background: (theme) => theme.palette.mode === 'dark'
+                      ? 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)'
+                      : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                     px: 3,
                     py: 1,
                     fontSize: '0.875rem',
                     fontWeight: 600,
                     textTransform: 'none',
-                    boxShadow: '0 4px 14px rgba(102, 126, 234, 0.4)',
+                    boxShadow: (theme) => theme.palette.mode === 'dark' ? '0 4px 14px rgba(59, 130, 246, 0.25)' : '0 4px 14px rgba(102, 126, 234, 0.4)',
                     '&:hover': {
-                      background: 'linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%)',
-                      boxShadow: '0 6px 20px rgba(102, 126, 234, 0.6)',
+                      background: (theme) => theme.palette.mode === 'dark'
+                        ? 'linear-gradient(135deg, #4338ca 0%, #6d28d9 100%)'
+                        : 'linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%)',
+                      boxShadow: (theme) => theme.palette.mode === 'dark' ? '0 6px 20px rgba(59, 130, 246, 0.35)' : '0 6px 20px rgba(102, 126, 234, 0.6)',
                       transform: 'translateY(-2px)',
                     },
                     '&.Mui-disabled': {
@@ -280,11 +338,11 @@ export default function TaskForm() {
                     fontSize: '0.875rem',
                     fontWeight: 600,
                     textTransform: 'none',
-                    borderColor: '#d1d5db',
-                    color: '#6b7280',
+                    borderColor: (theme) => theme.palette.mode === 'dark' ? '#374151' : '#d1d5db',
+                    color: (theme) => theme.palette.mode === 'dark' ? '#e5e7eb' : '#6b7280',
                     '&:hover': {
-                      borderColor: '#9ca3af',
-                      backgroundColor: '#f9fafb',
+                      borderColor: (theme) => theme.palette.mode === 'dark' ? '#4b5563' : '#9ca3af',
+                      backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.04)' : '#f9fafb',
                     },
                   }}
                 >

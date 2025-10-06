@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { CssBaseline, Container, Box, CircularProgress } from '@mui/material';
+import { CssBaseline, Container, Box, CircularProgress, ThemeProvider as MuiThemeProvider, createTheme } from '@mui/material';
 import Navbar from './components/Navbar.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Login from './pages/Login.jsx';
@@ -9,6 +9,7 @@ import TaskForm from './pages/TaskForm.jsx';
 import NotFound from './pages/NotFound.jsx';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { TaskProvider } from './context/TaskContext.jsx';
+import { ThemeProvider as AppThemeProvider, useThemeMode } from './context/ThemeContext.jsx';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
@@ -22,6 +23,11 @@ function AppContent() {
   const location = useLocation();
   const { loading } = useAuth();
   const isAuthRoute = location.pathname === '/login' || location.pathname === '/signup';
+  const { theme } = useThemeMode();
+
+  const muiTheme = React.useMemo(() => createTheme({
+    palette: { mode: theme === 'dark' ? 'dark' : 'light' },
+  }), [theme]);
 
   if (loading) {
     return (
@@ -39,7 +45,7 @@ function AppContent() {
   }
 
   return (
-    <>
+    <MuiThemeProvider theme={muiTheme}>
       <CssBaseline />
       {!isAuthRoute && <Navbar />}
       {isAuthRoute ? (
@@ -79,7 +85,7 @@ function AppContent() {
           </Routes>
         </Container>
       )}
-    </>
+    </MuiThemeProvider>
   );
 }
 
@@ -87,7 +93,9 @@ export default function App() {
   return (
     <AuthProvider>
       <TaskProvider>
-        <AppContent />
+        <AppThemeProvider>
+          <AppContent />
+        </AppThemeProvider>
       </TaskProvider>
     </AuthProvider>
   );

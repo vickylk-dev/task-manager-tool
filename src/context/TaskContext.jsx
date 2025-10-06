@@ -69,6 +69,7 @@ export function TaskProvider({ children }) {
         description: task.description || '',
         status: task.status || 'pending',
         category: task.category || 'Work',
+        attachment: task.attachment || null,
         createdAt: now,
         updatedAt: now,
       },

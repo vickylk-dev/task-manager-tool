@@ -19,6 +19,17 @@ export default function TaskCard({ task, onToggleStatus, onDelete }) {
           </Stack>
         </Stack>
         <Typography variant="body2" className="text-gray-700" sx={{ mb: 2 }}>{task.description}</Typography>
+        {task.attachment?.dataUrl && (
+          <Button
+            size="small"
+            sx={{ textTransform: 'none', mb: 1 }}
+            component="a"
+            href={task.attachment.dataUrl}
+            download={task.attachment.name || 'attachment'}
+          >
+            Download Attachment
+          </Button>
+        )}
         <Stack spacing={0.5} className="text-gray-500">
           <Typography variant="caption">Created: {new Date(task.createdAt).toLocaleString()}</Typography>
           <Typography variant="caption">Updated: {new Date(task.updatedAt).toLocaleString()}</Typography>
